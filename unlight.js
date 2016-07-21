@@ -145,7 +145,6 @@
         ctx.fillRect(x, y, w, h);
     }
     function paintCharacter(ctx, x, y, chr) {
-        ctx.textBaseline = "top";
         paintHeaderFooter(ctx, x, y, 140, 30);
         if(!chr) {
             ctx.fillStyle = "rgb(188, 188, 188)";
@@ -159,6 +158,8 @@
         ctx.moveTo(x + 2, y + 20);
         ctx.lineTo(x + 138, y + 20);
         ctx.stroke();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
         ctx.font = "15px serif";
         ctx.fillStyle = "black";
         ctx.fillText(chr.name, x + 10, y + 5);
@@ -201,25 +202,48 @@
         ctx.arc(x + 65, y + 45, 25, 0, 2 * Math.PI);
         ctx.arc(x + 65, y + 45, 27, 0, 2 * Math.PI);
         ctx.stroke();
-        const oldAlign = ctx.textAlign;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = "black";
         ctx.font = "24px serif";
         // TODO use TextMetrics if supported
         ctx.fillText("OK", x + 65, y + 54);
-        ctx.textAlign = oldAlign;
 
         // Points
         ctx.beginPath();
         ctx.moveTo(x + 7, y + 90);
         ctx.lineTo(x + 243, y + 90);
         ctx.stroke();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
         ctx.font = "11px serif";
         ctx.fillText("POINTS", x + 7, y + 88);
         ctx.textBaseline = "top";
         ctx.font = "22px serif";
         ctx.fillText("" + points, x + 10, y + 92);
+    }
+    function paintSkill(ctx, x, y, skill, active) {
+        const inactiveStyle = "rgb(50, 50, 50)";
+        if(active) {
+            let grad = ctx.createLinearGradient(x, y, x + 148, y);
+            grad.addColorStop(0, inactiveStyle);
+            grad.addColorStop(0.5, "rgb(134, 155, 0)");
+            grad.addColorStop(1, inactiveStyle);
+            ctx.fillStyle = grad;
+        } else {
+            ctx.fillStyle = inactiveStyle;
+        }
+        ctx.fillRect(x, y, 148, 30);
+
+        if(active)
+            ctx.fillStyle = "rgb(225, 225, 48)";
+        else
+            ctx.fillStyle = "rgb(192, 192, 192)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.font = "18px serif";
+        // TODO use TextMetrics if supported
+        ctx.fillText(skill.name, x + 75, y + 20);
     }
 
     function initGame() {
@@ -233,25 +257,25 @@
         var canvas = document.getElementById("unlight");
         var ctx = canvas.getContext("2d");
         // enemy characters
-        const testMob = new CharacterCard("\u9f8d\u9bf0",
+        const dragonCatfish = new CharacterCard("\u9f8d\u9bf0",
                 new CharacterLevel("M", 10), 1200, 4, 6, []);
-        paintCharacter(ctx, 0, 0, testMob);
+        paintCharacter(ctx, 0, 0, dragonCatfish);
         paintCharacter(ctx, 170, 0, null);
         paintCharacter(ctx, 340, 0, null);
         // enemy hand
         paintEnemyDeckArea(ctx, 510, 0, 2);
         // enemy skills
-        randomColor();
-        ctx.fillRect(0, 30, 150, 30);
-        randomColor();
-        ctx.fillRect(150, 30, 150, 30);
-        randomColor();
-        ctx.fillRect(300, 30, 150, 30);
-        randomColor();
-        ctx.fillRect(450, 30, 150, 30);
+        const waterCurtain = new Skill("\u6c34\u5ec9");
+        paintSkill(ctx, 0, 30, waterCurtain, false);
+        const bubbles = new Skill("\u6ce1\u6cab");
+        paintSkill(ctx, 147.5, 30, bubbles, false);
+        const thunder = new Skill("\u9583\u96fb");
+        paintSkill(ctx, 295, 30, thunder, false);
+        const groundBreaking = new Skill("\u64bc\u52d5\u5927\u5730");
+        paintSkill(ctx, 442.5, 30, groundBreaking, false);
         // "quest" / opponent id / raid time
         randomColor();
-        ctx.fillRect(600, 30, 160, 30);
+        ctx.fillRect(590, 30, 170, 30);
 
         // middle
 
@@ -259,14 +283,14 @@
         randomColor();
         ctx.fillRect(0, 440, 170, 240);
         // my skills
-        randomColor();
-        ctx.fillRect(170, 440, 147, 30);
-        randomColor();
-        ctx.fillRect(317, 440, 147, 30);
-        randomColor();
-        ctx.fillRect(464, 440, 147, 30);
-        randomColor();
-        ctx.fillRect(611, 440, 147, 30);
+        const tastyMilk = new Skill("\u7f8e\u5473\u725b\u5976");
+        paintSkill(ctx, 170, 440, tastyMilk, false);
+        const gentleInjection = new Skill("\u6eab\u67d4\u6ce8\u5c04");
+        paintSkill(ctx, 317.5, 440, gentleInjection, false);
+        const exsanguination = new Skill("\u6109\u5feb\u62bd\u8840");
+        paintSkill(ctx, 465, 440, exsanguination, true);
+        const secretDrug = new Skill("\u7955\u5bc6\u82e6\u85e5");
+        paintSkill(ctx, 612.5, 440, secretDrug, false);
         // my hand
         randomColor();
         ctx.fillRect(170, 470, 590, 95);
