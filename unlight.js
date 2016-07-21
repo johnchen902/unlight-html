@@ -140,10 +140,13 @@
         }
     }
 
+    function paintHeaderFooter(ctx, x, y, w, h) {
+        ctx.fillStyle = "rgb(196, 196, 196)";
+        ctx.fillRect(x, y, w, h);
+    }
     function paintCharacter(ctx, x, y, chr) {
         ctx.textBaseline = "top";
-        ctx.fillStyle = "rgb(196, 196, 196)";
-        ctx.fillRect(x, y, 140, 30);
+        paintHeaderFooter(ctx, x, y, 140, 30);
         if(!chr) {
             ctx.fillStyle = "rgb(188, 188, 188)";
             ctx.fillRect(x + 140, y, 30, 30);
@@ -173,6 +176,51 @@
             ctx.font = "9px serif";
         }
     }
+    function paintEnemyDeckArea(ctx, x, y, deckSize) {
+        paintHeaderFooter(ctx, x, y, 250, 30);
+        ctx.fillStyle = "rgb(89, 102, 136)";
+        ctx.strokeStyle = "black";
+        for(let i = 0; i < deckSize; i++) {
+            let x0 = x + 195 - i * 20;
+            ctx.fillRect(x0, y, 45, 20);
+            ctx.beginPath();
+            ctx.moveTo(x0, y);
+            ctx.lineTo(x0, y + 20);
+            ctx.lineTo(x0 + 45, y + 20);
+            ctx.lineTo(x0 + 45, y);
+            ctx.stroke();
+        }
+    }
+    function paintPointsAndOkArea(ctx, x, y, points) {
+        paintHeaderFooter(ctx, x, y, 250, 115);
+
+        // OK
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        ctx.arc(x + 65, y + 45, 23, 0, 2 * Math.PI);
+        ctx.arc(x + 65, y + 45, 25, 0, 2 * Math.PI);
+        ctx.arc(x + 65, y + 45, 27, 0, 2 * Math.PI);
+        ctx.stroke();
+        const oldAlign = ctx.textAlign;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "black";
+        ctx.font = "24px serif";
+        // TODO use TextMetrics if supported
+        ctx.fillText("OK", x + 65, y + 54);
+        ctx.textAlign = oldAlign;
+
+        // Points
+        ctx.beginPath();
+        ctx.moveTo(x + 7, y + 90);
+        ctx.lineTo(x + 243, y + 90);
+        ctx.stroke();
+        ctx.font = "11px serif";
+        ctx.fillText("POINTS", x + 7, y + 88);
+        ctx.textBaseline = "top";
+        ctx.font = "22px serif";
+        ctx.fillText("" + points, x + 10, y + 92);
+    }
 
     function initGame() {
         function randomColor() {
@@ -191,8 +239,7 @@
         paintCharacter(ctx, 170, 0, null);
         paintCharacter(ctx, 340, 0, null);
         // enemy hand
-        randomColor();
-        ctx.fillRect(510, 0, 250, 30);
+        paintEnemyDeckArea(ctx, 510, 0, 2);
         // enemy skills
         randomColor();
         ctx.fillRect(0, 30, 150, 30);
@@ -234,8 +281,7 @@
                 new CharacterLevel("R", 1), 8, 8, 7, []);
         paintCharacter(ctx, 340, 650, evelyn);
         // bottom-right panel
-        randomColor();
-        ctx.fillRect(510, 565, 250, 115);
+        paintPointsAndOkArea(ctx, 510, 565, 5701);
     }
     document.addEventListener("DOMContentLoaded", function() {
         initGame();
