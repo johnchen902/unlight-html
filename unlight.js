@@ -14,11 +14,13 @@
         cursedGrail : "cursedGrail",
         // TODO character-specific cards, red heal, green heal
     });
+    function verifyEnum(theEnum, enumItem) {
+        return Object.keys(theEnum).some(
+            (x) => theEnum[x] === enumItem);
+    }
     function verifyCardType(cardType) {
-        for(var prop in CardType)
-            if(CardType[prop] === cardType)
-                return;
-        throw new Error("no such card type");
+        if(!verifyEnum(CardType, cardType))
+            throw new Error("no such card type");
     }
     function verifyCard(cardType, cardWeight) {
         function checkRange(min, max) {
@@ -72,20 +74,20 @@
         if(!Number.isInteger(level))
             throw new TypeError("level is not an integer");
         if(group !== "L" && group !== "R" &&
-           group != "EP" && group !== "N" && group !== "M")
-       throw new Error("no such character level");
-       if(level < 1)
-           throw new RangeError("level < 1");
-       if(group === "M") {
-           if(level > 3 && level != 10)
-               throw new RangeError(group + " level > 3 and != 10");
-       } else if(group === "L" || group === "R") {
-           if(level > 5)
-               throw new RangeError(group + " level > 5");
-       } else {
-           if(level > 1)
-               throw new RangeError(group + " level > 1");
-       }
+                group != "EP" && group !== "N" && group !== "M")
+            throw new Error("no such character level");
+        if(level < 1)
+            throw new RangeError("level < 1");
+        if(group === "M") {
+            if(level > 3 && level != 10)
+                throw new RangeError(group + " level > 3 and != 10");
+        } else if(group === "L" || group === "R") {
+            if(level > 5)
+                throw new RangeError(group + " level > 5");
+        } else {
+            if(level > 1)
+                throw new RangeError(group + " level > 1");
+        }
     }
     class CharacterLevel {
         constructor(group, level) {
@@ -98,11 +100,22 @@
             return this.group + this.level;
         }
     }
+    const Stage = Object.freeze({
+        move : "move-stage",
+        attack : "attack-stage",
+        defense : "defense-stage",
+    });
+    function verifyStage(stage) {
+        if(!verifyEnum(Stage, stage))
+            throw new Error("no such stage");
+    }
     class Skill {
-        constructor(name) {
+        constructor(name, stage) {
             if(typeof name !== "string")
                 throw new TypeError("skill name is not a string");
+            verifyStage(stage);
             this.name = name;
+            this.stage = stage;
             Object.freeze(this);
         }
     }
@@ -244,6 +257,33 @@
         ctx.font = "18px serif";
         // TODO use TextMetrics if supported
         ctx.fillText(skill.name, x + 75, y + 20);
+
+        ctx.save();
+        ctx.translate(x, y + 30);
+        ctx.rotate(-Math.PI / 2);
+        var text = "?";
+        switch(skill.stage) {
+        case Stage.move:
+            text = "MOVE";
+            ctx.fillStyle = "rgb(213, 3, 255)";
+            break;
+        case Stage.attack:
+            text = "ATK";
+            ctx.fillStyle = "rgb(238, 0, 1)";
+            break;
+        case Stage.defense:
+            text = "DEF";
+            ctx.fillStyle = "rgb(39, 105, 245)";
+            break;
+        }
+        ctx.fillRect(2, 2, 2, 5);
+
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.font = "7px serif";
+        ctx.fillStyle = "rgb(192, 192, 192)";
+        ctx.fillText(text, 5, 2);
+        ctx.restore();
     }
 
     function initGame() {
@@ -265,13 +305,14 @@
         // enemy hand
         paintEnemyDeckArea(ctx, 510, 0, 2);
         // enemy skills
-        const waterCurtain = new Skill("\u6c34\u5ec9");
+        const waterCurtain = new Skill("\u6c34\u5ec9", Stage.attack);
         paintSkill(ctx, 0, 30, waterCurtain, false);
-        const bubbles = new Skill("\u6ce1\u6cab");
+        const bubbles = new Skill("\u6ce1\u6cab", Stage.defense);
         paintSkill(ctx, 147.5, 30, bubbles, false);
-        const thunder = new Skill("\u9583\u96fb");
+        const thunder = new Skill("\u9583\u96fb", Stage.attack);
         paintSkill(ctx, 295, 30, thunder, false);
-        const groundBreaking = new Skill("\u64bc\u52d5\u5927\u5730");
+        const groundBreaking = new Skill("\u64bc\u52d5\u5927\u5730",
+                                         Stage.move);
         paintSkill(ctx, 442.5, 30, groundBreaking, false);
         // "quest" / opponent id / raid time
         randomColor();
@@ -283,13 +324,17 @@
         randomColor();
         ctx.fillRect(0, 440, 170, 240);
         // my skills
-        const tastyMilk = new Skill("\u7f8e\u5473\u725b\u5976");
-        paintSkill(ctx, 170, 440, tastyMilk, false);
-        const gentleInjection = new Skill("\u6eab\u67d4\u6ce8\u5c04");
+        const exTastyMilk = new Skill("Ex\u7f8e\u5473\u725b\u5976",
+                                   Stage.move);
+        paintSkill(ctx, 170, 440, exTastyMilk, false);
+        const gentleInjection = new Skill("\u6eab\u67d4\u6ce8\u5c04",
+                                         Stage.defense);
         paintSkill(ctx, 317.5, 440, gentleInjection, false);
-        const exsanguination = new Skill("\u6109\u5feb\u62bd\u8840");
+        const exsanguination = new Skill("\u6109\u5feb\u62bd\u8840",
+                                        Stage.attack);
         paintSkill(ctx, 465, 440, exsanguination, true);
-        const secretDrug = new Skill("\u7955\u5bc6\u82e6\u85e5");
+        const secretDrug = new Skill("\u7955\u5bc6\u82e6\u85e5",
+                                    Stage.defense);
         paintSkill(ctx, 612.5, 440, secretDrug, false);
         // my hand
         randomColor();
