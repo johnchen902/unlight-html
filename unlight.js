@@ -285,6 +285,62 @@
         ctx.fillText(text, 5, 2);
         ctx.restore();
     }
+    function paintMainCharacter(ctx, x, y, chr) {
+        if(chr.level.group === "R" || chr.level.group === "EP")
+            ctx.fillStyle = "rgb(193, 166, 78)";
+        else
+            ctx.fillStyle = "grey"; // TODO precise color
+        ctx.fillRect(x, y, 170, 240);
+        switch(chr.level.level) {
+        case 1:
+            ctx.fillStyle = "grey"; // TODO precise color
+            break;
+        case 2:
+            ctx.fillStyle = "rgb(55, 120, 42)";
+            break;
+        case 3:
+            ctx.fillStyle = "blue"; // TODO precise color
+            break;
+        case 4:
+            ctx.fillStyle = "red"; // TODO precise color
+            break;
+        default:
+            ctx.fillStyle = "gold"; // TODO precise color
+            break;
+        }
+        ctx.fillRect(x + 2, y + 25, 166, 9);
+        ctx.fillRect(x + 2, y + 34, 9, 188);
+        ctx.fillStyle = "rgb(45, 39, 51)";
+        ctx.fillRect(x + 2, y + 222, 166, 16);
+        ctx.fillStyle = "rgb(154, 0, 0)";
+        ctx.beginPath();
+        ctx.arc(x + 22, y + 22, 18, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "white";
+        ctx.font = "15px serif";
+        ctx.fillText(chr.name, x + 85, y + 25);
+
+        ctx.font = "18px serif";
+        ctx.fillText(chr.level.group + chr.level.level,
+                     x + 22, y + 30);
+
+        ctx.textAlign = "left";
+        ctx.fillStyle = "rgb(255, 221, 103)";
+        ctx.font = "italic 13px serif";
+        ctx.fillText("HP", x + 2, y + 236);
+        ctx.fillText("ATK", x + 43, y + 236);
+        ctx.fillText("DEF", x + 104, y + 236);
+        ctx.fillStyle = "white";
+        ctx.font = "20px serif";
+        ctx.strokeStyle = "black";
+        ctx.strokeText("" + chr.atk, x + 76, y + 236);
+        ctx.fillText("" + chr.atk, x + 76, y + 236);
+        ctx.strokeText("" + chr.def, x + 137, y + 236);
+        ctx.fillText("" + chr.def, x + 137, y + 236);
+    }
 
     function initGame() {
         function randomColor() {
@@ -321,8 +377,9 @@
         // middle
 
         // my current character
-        randomColor();
-        ctx.fillRect(0, 440, 170, 240);
+        const nenem = new CharacterCard("\u97f3\u97f3\u5922",
+                new CharacterLevel("R", 2), 9, 7, 8, []);
+        paintMainCharacter(ctx, 0, 440, nenem);
         // my skills
         const exTastyMilk = new Skill("Ex\u7f8e\u5473\u725b\u5976",
                                    Stage.move);
